@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import * as AlphaTab from "@coderline/alphatab";
 import { onMounted } from "vue";
-import { useAPI } from "./composables/useApi";
+import { useAPI } from "./composables/useAPI";
+
+import TrackList from "./components/TrackList.vue";
 
 const { api, init, loading } = useAPI()
 
@@ -26,45 +28,6 @@ onMounted(() => {
   if (!api.value) {
     throw Error('初始化失败！')
   }
-
-  // track selector
-  function createTrackItem(track) {
-    const trackItem = document
-      .querySelector("#at-track-template")
-      .content.cloneNode(true).firstElementChild;
-    trackItem.querySelector(".at-track-name").innerText = track.name;
-    trackItem.track = track;
-    trackItem.onclick = (e) => {
-      e.stopPropagation();
-      api.value.renderTracks([track]);
-    };
-    return trackItem;
-  }
-  const trackList = wrapper!.querySelector(".at-track-list");
-  api.value.scoreLoaded.on((score) => {
-    // clear items
-    trackList!.innerHTML = "";
-    // generate a track item for all tracks of the score
-    score.tracks.forEach((track) => {
-      trackList!.appendChild(createTrackItem(track));
-    });
-  });
-  api.value.renderStarted.on(() => {
-    // collect tracks being rendered
-    const tracks = new Map();
-    api.value.tracks.forEach((t) => {
-      tracks.set(t.index, t);
-    });
-    // mark the item as active or not
-    const trackItems = trackList!.querySelectorAll(".at-track");
-    trackItems.forEach((trackItem) => {
-      if (tracks.has(trackItem.track.index)) {
-        trackItem.classList.add("active");
-      } else {
-        trackItem.classList.remove("active");
-      }
-    });
-  });
 
   /** Song Info */
   api.value.scoreLoaded.on((score) => {
@@ -201,7 +164,7 @@ onMounted(() => {
   <div class="at-content">
     <div class="at-sidebar">
       <div class="at-sidebar-content">
-        <div class="at-track-list"></div>
+        <TrackList />
       </div>
     </div>
     <div class="at-viewport">
@@ -259,15 +222,4 @@ onMounted(() => {
       </div>
     </div>
   </div>
-
-  <template id="at-track-template">
-    <div class="at-track">
-      <div class="at-track-icon">
-        <i class="fas fa-guitar"></i>
-      </div>
-      <div class="at-track-details">
-        <div class="at-track-name"></div>
-      </div>
-    </div>
-  </template>
 </template>

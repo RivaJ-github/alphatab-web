@@ -2,7 +2,10 @@
 
 import * as AlphaTab from "@coderline/alphatab";
 import { ref } from "vue";
+import type { Ref } from "vue";
 import { createGlobalState } from "@vueuse/core";
+
+type TrackList = AlphaTab.AlphaTabApi["tracks"]
 
 /** 创建API */
 export const useAPI = createGlobalState(() => {
@@ -10,7 +13,9 @@ export const useAPI = createGlobalState(() => {
 
   const loading = ref(false);
 
-  const trackList = ref<AlphaTab.model.Score['tracks']>([]);
+  const trackList = ref<TrackList>([]) as Ref<TrackList>;
+
+  const activeTrackList = ref<Set<number>>(new Set())
 
   const init = (container: HTMLElement, settings: AlphaTab.Settings | any) => {
     api.value = new AlphaTab.AlphaTabApi(container, settings);
@@ -26,6 +31,11 @@ export const useAPI = createGlobalState(() => {
     api.value.scoreLoaded.on((score) => {
       trackList.value = score.tracks;
     });
+
+    api.value.renderStarted.on(() => {
+      // collect tracks being rendered
+      activeTrackList.value = new Set(api.value!.tracks.map(track => track.index));
+    });
   };
 
   const reset = (container: HTMLElement, settings: AlphaTab.Settings | any) => {
@@ -39,6 +49,8 @@ export const useAPI = createGlobalState(() => {
     loading,
     /** 音轨列表 */
     trackList,
+    /** 当且被渲染的音轨 */
+    activeTrackList,
     /** 初始化 */
     init,
     reset,
