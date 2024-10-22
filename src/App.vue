@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import * as alphaTab from "@coderline/alphatab";
-import { onMounted, ref } from "vue";
+import * as AlphaTab from "@coderline/alphatab";
+import { onMounted } from "vue";
+import { useAPI } from "./composables/useApi";
 
-const init = () => {
+const { api, init, loading } = useAPI()
+
+onMounted(() => {
   // load elements
   const wrapper = document.querySelector(".at-wrap");
-  const main = wrapper!.querySelector(".at-main");
+  const main = wrapper!.querySelector(".at-main") as HTMLElement;
 
   // initialize alphatab
   const settings = {
@@ -15,19 +18,14 @@ const init = () => {
       enablePlayer: true,
       soundFont:
         "https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/soundfont/sonivox.sf2",
-      scrollElement: wrapper.querySelector(".at-viewport"), // this is the element to scroll during playback
+      scrollElement: wrapper!.querySelector(".at-viewport"), // this is the element to scroll during playback
     },
   };
-  const api = new alphaTab.AlphaTabApi(main, settings);
+  init(main, settings);
 
-  // overlay logic
-  const overlay = wrapper!.querySelector(".at-overlay");
-  api.renderStarted.on(() => {
-    overlay!.style.display = "flex";
-  });
-  api.renderFinished.on(() => {
-    overlay!.style.display = "none";
-  });
+  if (!api.value) {
+    throw Error('初始化失败！')
+  }
 
   // track selector
   function createTrackItem(track) {
@@ -38,12 +36,12 @@ const init = () => {
     trackItem.track = track;
     trackItem.onclick = (e) => {
       e.stopPropagation();
-      api.renderTracks([track]);
+      api.value.renderTracks([track]);
     };
     return trackItem;
   }
   const trackList = wrapper!.querySelector(".at-track-list");
-  api.scoreLoaded.on((score) => {
+  api.value.scoreLoaded.on((score) => {
     // clear items
     trackList!.innerHTML = "";
     // generate a track item for all tracks of the score
@@ -51,10 +49,10 @@ const init = () => {
       trackList!.appendChild(createTrackItem(track));
     });
   });
-  api.renderStarted.on(() => {
+  api.value.renderStarted.on(() => {
     // collect tracks being rendered
     const tracks = new Map();
-    api.tracks.forEach((t) => {
+    api.value.tracks.forEach((t) => {
       tracks.set(t.index, t);
     });
     // mark the item as active or not
@@ -69,7 +67,7 @@ const init = () => {
   });
 
   /** Song Info */
-  api.scoreLoaded.on((score) => {
+  api.value.scoreLoaded.on((score) => {
     wrapper.querySelector(".at-song-title").innerText = score.title;
     wrapper.querySelector(".at-song-artist").innerText = score.artist;
   });
@@ -79,9 +77,9 @@ const init = () => {
   countIn.onclick = () => {
     countIn.classList.toggle("active");
     if (countIn.classList.contains("active")) {
-      api.countInVolume = 1;
+      api.value.countInVolume = 1;
     } else {
-      api.countInVolume = 0;
+      api.value.countInVolume = 0;
     }
   };
 
@@ -89,9 +87,9 @@ const init = () => {
   metronome.onclick = () => {
     metronome.classList.toggle("active");
     if (metronome.classList.contains("active")) {
-      api.metronomeVolume = 1;
+      api.value.metronomeVolume = 1;
     } else {
-      api.metronomeVolume = 0;
+      api.value.metronomeVolume = 0;
     }
   };
 
@@ -99,21 +97,21 @@ const init = () => {
   const loop = wrapper.querySelector(".at-controls .at-loop");
   loop.onclick = () => {
     loop.classList.toggle("active");
-    api.isLooping = loop.classList.contains("active");
+    api.value.isLooping = loop.classList.contains("active");
   };
 
   /** 打印 */
   wrapper.querySelector(".at-controls .at-print").onclick = () => {
-    api.print();
+    api.value.print();
   };
 
   /** zoom */
   const zoom = wrapper.querySelector(".at-controls .at-zoom select");
   zoom.onchange = () => {
     const zoomLevel = parseInt(zoom.value) / 100;
-    api.settings.display.scale = zoomLevel;
-    api.updateSettings();
-    api.render();
+    api.value.settings.display.scale = zoomLevel;
+    api.value.updateSettings();
+    api.value.render();
   };
 
   /** Layout */
@@ -121,24 +119,24 @@ const init = () => {
   layout.onchange = () => {
     switch (layout.value) {
       case "horizontal":
-        api.settings.display.layoutMode = alphaTab.LayoutMode.Horizontal;
+        api.value.settings.display.layoutMode = AlphaTab.LayoutMode.Horizontal;
         break;
       case "page":
-        api.settings.display.layoutMode = alphaTab.LayoutMode.Page;
+        api.value.settings.display.layoutMode = AlphaTab.LayoutMode.Page;
         break;
     }
-    api.updateSettings();
-    api.render();
+    api.value.updateSettings();
+    api.value.render();
   };
 
   const playerIndicator = wrapper.querySelector(
     ".at-controls .at-player-progress"
   );
-  api.soundFontLoad.on((e) => {
+  api.value.soundFontLoad.on((e) => {
     const percentage = Math.floor((e.loaded / e.total) * 100);
     playerIndicator.innerText = percentage + "%";
   });
-  api.playerReady.on(() => {
+  api.value.playerReady.on(() => {
     playerIndicator.style.display = "none";
   });
 
@@ -148,21 +146,21 @@ const init = () => {
     if (e.target.classList.contains("disabled")) {
       return;
     }
-    api.playPause();
+    api.value.playPause();
   };
   stop.onclick = (e) => {
     if (e.target.classList.contains("disabled")) {
       return;
     }
-    api.stop();
+    api.value.stop();
   };
-  api.playerReady.on(() => {
+  api.value.playerReady.on(() => {
     playPause.classList.remove("disabled");
     stop.classList.remove("disabled");
   });
-  api.playerStateChanged.on((e) => {
+  api.value.playerStateChanged.on((e) => {
     const icon = playPause.querySelector("i.fas");
-    if (e.state === alphaTab.synth.PlayerState.Playing) {
+    if (e.state === AlphaTab.synth.PlayerState.Playing) {
       icon.classList.remove("fa-play");
       icon.classList.add("fa-pause");
     } else {
@@ -183,7 +181,7 @@ const init = () => {
   /** 进度条 */
   const songPosition = wrapper.querySelector(".at-song-position");
   let previousTime = -1;
-  api.playerPositionChanged.on((e) => {
+  api.value.playerPositionChanged.on((e) => {
     // reduce number of UI updates to second changes.
     const currentSeconds = (e.currentTime / 1000) | 0;
     if (currentSeconds == previousTime) {
@@ -193,13 +191,11 @@ const init = () => {
     songPosition.innerText =
       formatDuration(e.currentTime) + " / " + formatDuration(e.endTime);
   });
-};
-
-onMounted(init);
+});
 </script>
 
 <template>
-  <div class="at-overlay">
+  <div class="at-overlay" v-show="loading">
     <div class="at-overlay-content">Music sheet is loading</div>
   </div>
   <div class="at-content">

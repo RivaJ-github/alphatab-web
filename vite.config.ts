@@ -9,6 +9,7 @@ export default defineConfig({
     vue(),
     alphaTab({
       alphaTabSourceDir: path.resolve('./node_modules/@coderline/alphatab/dist'),
+      assetOutputDir: path.resolve('./node_modules/.vite/deps/')
     })
   ],
 })
