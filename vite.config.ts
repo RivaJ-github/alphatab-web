@@ -17,7 +17,7 @@ export default defineConfig(({ command }) => ({
       alphaTabSourceDir: path.resolve('./node_modules/@coderline/alphatab/dist'),
       assetOutputDir: command === 'serve'
       ? path.resolve('./node_modules/.vite/deps/') // 开发环境
-      : path.resolve('./public/assets')
+      : path.resolve('./dist/assets')
     })
   ]
 }))
