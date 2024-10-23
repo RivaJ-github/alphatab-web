@@ -2,10 +2,12 @@
 import * as AlphaTab from "@coderline/alphatab";
 import { onMounted } from "vue";
 import { useAPI } from "./composables/useAPI";
-
 import TrackList from "./components/TrackList.vue";
+import AtOverlay from "./components/AtOverlay.vue";
+import AtControls from "./components/AtControls.vue";
+import globalState from "./store/globalState";
 
-const { api, init, loading } = useAPI()
+const { init } = useAPI()
 
 onMounted(() => {
   // load elements
@@ -25,142 +27,15 @@ onMounted(() => {
   };
   init(main, settings);
 
-  if (!api.value) {
+  const api = globalState.api
+  if (!api) {
     throw Error('初始化失败！')
   }
-
-  /** Song Info */
-  api.value.scoreLoaded.on((score) => {
-    wrapper.querySelector(".at-song-title").innerText = score.title;
-    wrapper.querySelector(".at-song-artist").innerText = score.artist;
-  });
-
-  /** Count-In and Metronome 计数和节拍器 */
-  const countIn = wrapper.querySelector(".at-controls .at-count-in");
-  countIn.onclick = () => {
-    countIn.classList.toggle("active");
-    if (countIn.classList.contains("active")) {
-      api.value.countInVolume = 1;
-    } else {
-      api.value.countInVolume = 0;
-    }
-  };
-
-  const metronome = wrapper.querySelector(".at-controls .at-metronome");
-  metronome.onclick = () => {
-    metronome.classList.toggle("active");
-    if (metronome.classList.contains("active")) {
-      api.value.metronomeVolume = 1;
-    } else {
-      api.value.metronomeVolume = 0;
-    }
-  };
-
-  /** 循环 */
-  const loop = wrapper.querySelector(".at-controls .at-loop");
-  loop.onclick = () => {
-    loop.classList.toggle("active");
-    api.value.isLooping = loop.classList.contains("active");
-  };
-
-  /** 打印 */
-  wrapper.querySelector(".at-controls .at-print").onclick = () => {
-    api.value.print();
-  };
-
-  /** zoom */
-  const zoom = wrapper.querySelector(".at-controls .at-zoom select");
-  zoom.onchange = () => {
-    const zoomLevel = parseInt(zoom.value) / 100;
-    api.value.settings.display.scale = zoomLevel;
-    api.value.updateSettings();
-    api.value.render();
-  };
-
-  /** Layout */
-  const layout = wrapper.querySelector(".at-controls .at-layout select");
-  layout.onchange = () => {
-    switch (layout.value) {
-      case "horizontal":
-        api.value.settings.display.layoutMode = AlphaTab.LayoutMode.Horizontal;
-        break;
-      case "page":
-        api.value.settings.display.layoutMode = AlphaTab.LayoutMode.Page;
-        break;
-    }
-    api.value.updateSettings();
-    api.value.render();
-  };
-
-  const playerIndicator = wrapper.querySelector(
-    ".at-controls .at-player-progress"
-  );
-  api.value.soundFontLoad.on((e) => {
-    const percentage = Math.floor((e.loaded / e.total) * 100);
-    playerIndicator.innerText = percentage + "%";
-  });
-  api.value.playerReady.on(() => {
-    playerIndicator.style.display = "none";
-  });
-
-  const playPause = wrapper.querySelector(".at-controls .at-player-play-pause");
-  const stop = wrapper.querySelector(".at-controls .at-player-stop");
-  playPause.onclick = (e) => {
-    if (e.target.classList.contains("disabled")) {
-      return;
-    }
-    api.value.playPause();
-  };
-  stop.onclick = (e) => {
-    if (e.target.classList.contains("disabled")) {
-      return;
-    }
-    api.value.stop();
-  };
-  api.value.playerReady.on(() => {
-    playPause.classList.remove("disabled");
-    stop.classList.remove("disabled");
-  });
-  api.value.playerStateChanged.on((e) => {
-    const icon = playPause.querySelector("i.fas");
-    if (e.state === AlphaTab.synth.PlayerState.Playing) {
-      icon.classList.remove("fa-play");
-      icon.classList.add("fa-pause");
-    } else {
-      icon.classList.remove("fa-pause");
-      icon.classList.add("fa-play");
-    }
-  });
-
-  function formatDuration(milliseconds) {
-    let seconds = milliseconds / 1000;
-    const minutes = (seconds / 60) | 0;
-    seconds = (seconds - minutes * 60) | 0;
-    return (
-      String(minutes).padStart(2, "0") + ":" + String(seconds).padStart(2, "0")
-    );
-  }
-
-  /** 进度条 */
-  const songPosition = wrapper.querySelector(".at-song-position");
-  let previousTime = -1;
-  api.value.playerPositionChanged.on((e) => {
-    // reduce number of UI updates to second changes.
-    const currentSeconds = (e.currentTime / 1000) | 0;
-    if (currentSeconds == previousTime) {
-      return;
-    }
-
-    songPosition.innerText =
-      formatDuration(e.currentTime) + " / " + formatDuration(e.endTime);
-  });
 });
 </script>
 
 <template>
-  <div class="at-overlay" v-show="loading">
-    <div class="at-overlay-content">Music sheet is loading</div>
-  </div>
+  <AtOverlay />
   <div class="at-content">
     <div class="at-sidebar">
       <div class="at-sidebar-content">
@@ -172,54 +47,8 @@ onMounted(() => {
     </div>
   </div>
 
-  <div class="at-controls">
-    <div class="at-controls-left">
-      <a class="btn at-player-stop disabled">
-        <i class="fas fa-step-backward"></i>
-      </a>
-      <a class="btn at-player-play-pause disabled">
-        <i class="fas fa-play"></i>
-      </a>
-      <span class="at-player-progress">0%</span>
-      <div class="at-song-info">
-        <span class="at-song-title"></span> -
-        <span class="at-song-artist"></span>
-      </div>
-      <div class="at-song-position">00:00 / 00:00</div>
-    </div>
-    <div class="at-controls-right">
-      <a class="btn toggle at-count-in">
-        <i class="fas fa-hourglass-half"></i>
-      </a>
-      <a class="btn at-metronome">
-        <i class="fas fa-edit"></i>
-      </a>
-      <a class="btn at-loop">
-        <i class="fas fa-retweet"></i>
-      </a>
-      <a class="btn at-print">
-        <i class="fas fa-print"></i>
-      </a>
-      <div class="at-zoom">
-        <i class="fas fa-search"></i>
-        <select>
-          <option value="25">25%</option>
-          <option value="50">50%</option>
-          <option value="75">75%</option>
-          <option value="90">90%</option>
-          <option value="100" selected>100%</option>
-          <option value="110">110%</option>
-          <option value="125">125%</option>
-          <option value="150">150%</option>
-          <option value="200">200%</option>
-        </select>
-      </div>
-      <div class="at-layout">
-        <select>
-          <option value="horizontal">Horizontal</option>
-          <option value="page" selected>Page</option>
-        </select>
-      </div>
-    </div>
-  </div>
+  <AtControls />
 </template>
+
+<style>
+</style>

@@ -114,35 +114,6 @@ body {
   color: #fff;
 }
 
-/** Overlay **/
-
-.at-overlay {
-  /** Fill Parent */
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1002;
-
-  /* Blurry dark shade */
-  backdrop-filter: blur(3px);
-  background: rgba(0, 0, 0, 0.5);
-
-  /** center content */
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.at-overlay-content {
-  /* white box with drop-shadow */
-  margin-top: 20px;
-  background: #fff;
-  box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.3);
-  padding: 10px;
-}
-
 /** Track selector **/
 .at-track {
   display: flex;
@@ -186,66 +157,6 @@ body {
 }
 .at-track > .at-track-name {
   font-weight: 500;
-}
-
-/** Footer **/
-.at-controls {
-  flex: 0 0 auto;
-  display: flex;
-  justify-content: space-between;
-  background: #436d9d;
-  color: #fff;
-}
-.at-controls>div {
-  display: flex;
-  justify-content: flex-start;
-  align-content: center;
-  align-items: center;
-}
-.at-controls>div>* {
-  display: flex;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 4px;
-  margin: 0 3px;
-}
-.at-controls .btn {
-  color: #fff;
-  border-radius: 0;
-  height: 40px;
-  width: 40px;
-  height: 40px;
-  font-size: 16px;
-}
-.at-controls a.active {
-  background: #5588c7;
-  text-decoration: none;
-}
-.at-controls .btn i {
-  vertical-align: top;
-}
-.at-controls select {
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  appearance: none;
-  border: none;
-  width: 100%;
-  height: 40px;
-  background: #436d9d;
-  padding: 4px 10px;
-  color: #fff;
-  font-size: 16px;
-  text-align-last: center;
-  text-align: center;
-  -ms-text-align-last: center;
-  -moz-text-align-last: center;
-  cursor: pointer;
-}
-
-.at-song-title {
-  font-weight: bold;
 }
 
 .at-cursor-bar {
