@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import * as AlphaTab from "@coderline/alphatab";
 import { onMounted } from "vue";
 import { useAPI } from "./composables/useAPI";
 import TrackList from "./components/TrackList.vue";
