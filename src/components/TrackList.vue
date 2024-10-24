@@ -7,13 +7,10 @@ const { trackOptionList, activeTrackSet } = useAPI();
 
 const isExpand = ref(false);
 
-document.body.addEventListener('click', () => {
-  isExpand.value = false
-})
-
 const handleChangeTrack = (e: any, id: number) => {
   e.stopPropagation()
   if (!isExpand.value) {
+    isExpand.value = true
     return
   }
   if (activeTrackSet.value.has(id)) return;
@@ -49,14 +46,11 @@ const setChannelSolo = (e: MouseEvent, id: number) => {
   op.solo = !op.solo
 }
 
-const triggerExpand = (e: any) => {
-  e.stopPropagation()
-  isExpand.value = !isExpand.value
-};
+const closeTrack = () => isExpand.value = false
 </script>
 
 <template>
-  <div class="at-sidebar" :class="{ open: isExpand }" @click="triggerExpand">
+  <div class="at-sidebar" :class="{ open: isExpand }" >
     <div class="at-sidebar-content">
       <div class="at-track-list">
         <div
@@ -95,6 +89,7 @@ const triggerExpand = (e: any) => {
         </div>
       </div>
     </div>
+    <div class="at-sidebar-mask" @click="closeTrack" />
   </div>
 </template>
 
@@ -207,5 +202,22 @@ input[type="range"] {
 .at-sidebar .btn.btn-success.active {
   --primary-color: #fff;
   --second-primary-color: rgb(0, 164, 0);
+}
+
+.at-sidebar-content {
+  z-index: 100;
+}
+
+.at-sidebar .at-sidebar-mask {
+  display: none;
+}
+
+.at-sidebar.open .at-sidebar-mask {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
 }
 </style>
