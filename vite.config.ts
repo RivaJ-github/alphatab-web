@@ -8,7 +8,8 @@ import { fileURLToPath } from 'url';
 export default defineConfig(({ command }) => ({
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '~': fileURLToPath(new URL('./', import.meta.url)),
     }
   },
   plugins: [
@@ -17,7 +18,7 @@ export default defineConfig(({ command }) => ({
       alphaTabSourceDir: path.resolve('./node_modules/@coderline/alphatab/dist'),
       assetOutputDir: command === 'serve'
       ? path.resolve('./node_modules/.vite/deps/') // 开发环境
-      : void 0 // path.resolve('./public/assets')
+      : path.resolve('./public/assets')
     })
   ]
 }))

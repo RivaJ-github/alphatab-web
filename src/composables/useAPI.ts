@@ -9,6 +9,9 @@ import { formatDuration } from "@/utils";
 interface Option {
   id: number
   name: string
+  mute: boolean
+  solo: boolean
+  volume: number
 }
 
 interface BaseInfo {
@@ -35,7 +38,7 @@ const DefaultBaseInfo = {
   metronomeVolume: 0,
   isLooping: false,
   state: AlphaTab.synth.PlayerState.Paused,
-  songPosition: '00:00 / 00:00'
+  songPosition: '00:00 / 00:00',
 }
 
 /** 创建API */
@@ -61,7 +64,10 @@ export const useAPI = createGlobalState(() => {
       globalState.trackList = score.tracks;
       trackOptionList.value = globalState.trackList!.map((track) => ({
         id: track.index,
-        name: track.name
+        name: track.name,
+        mute: false,
+        solo: false,
+        volume: track.playbackInfo.volume,
       }))
 
       baseInfo.value.title = score.title
@@ -109,7 +115,7 @@ export const useAPI = createGlobalState(() => {
     baseInfo,
     /** 曲谱渲染状态 */
     loadingMusicScore,
-    /** 当前曲谱音轨名称列表 */
+    /** 当前曲谱音轨列表及状态 */
     trackOptionList,
     /** 当且被渲染的音轨 */
     activeTrackSet,

@@ -35,7 +35,8 @@ const handleChangeZoom = (e: any) => {
 const handleChangeLayout = (e: any) => {
   switch (e.target.value) {
     case "horizontal":
-      globalState.api!.settings.display.layoutMode = AlphaTab.LayoutMode.Horizontal;
+      globalState.api!.settings.display.layoutMode =
+        AlphaTab.LayoutMode.Horizontal;
       break;
     case "page":
       globalState.api!.settings.display.layoutMode = AlphaTab.LayoutMode.Page;
@@ -46,28 +47,60 @@ const handleChangeLayout = (e: any) => {
 };
 
 const handleStop = () => {
-  if (!isPlayerReady) return
-  globalState.api!.stop()
-}
+  if (!isPlayerReady.value) return;
+  globalState.api!.stop();
+};
 const handlePlayPause = () => {
-  if (!isPlayerReady) return
-  globalState.api!.playPause()
-}
+  if (!isPlayerReady.value) return;
+  globalState.api!.playPause();
+};
+
+const handleOpenFile = () => {
+  const t = document.createElement("input");
+  t.type = 'file'
+  t.accept = "application/octet-stream,.gp,.gp3,.gp4,.gp5,.gpx,.musicxml,.mxml,.xml,.capx",
+  t.onchange = () => {
+    if (t.files?.length !== 1) return 
+    const fr = new FileReader()
+    fr.onload = e => {
+      globalState.api!.load(e.target?.result, [0])
+    }
+    fr.readAsArrayBuffer(t.files[0])
+  },
+  document.body.appendChild(t),
+  t.click(),
+  document.body.removeChild(t);
+};
 </script>
 
 <template>
   <div class="at-controls">
     <div class="at-controls-left">
+      <a class="btn at-upload" @click="handleOpenFile">
+        <i class="fas fa-folder"></i>
+      </a>
       <a class="btn at-player-stop" @click="handleStop">
         <i class="fas fa-step-backward"></i>
       </a>
       <a class="btn at-player-play-pause" @click="handlePlayPause">
-        <i :class="`fas fa-${baseInfo.state === AlphaTab.synth.PlayerState.Playing ? 'pause' : 'play'}`"></i>
+        <i
+          :class="`fas fa-${
+            baseInfo.state === AlphaTab.synth.PlayerState.Playing
+              ? 'pause'
+              : 'play'
+          }`"
+        ></i>
       </a>
-      <span class="at-player-progress" v-if="!isPlayerReady">{{ fontLoadPercent }}%</span>
+      <span class="at-player-progress" v-if="!isPlayerReady"
+        >{{ fontLoadPercent }}%</span
+      >
       <div class="at-song-info">
-        <span class="at-song-title">{{ baseInfo.title }}</span> -
-        <span class="at-song-artist">{{ baseInfo.artist }}</span>
+        <div class="at-song-info-wrap">
+          <span class="at-song-title">{{ baseInfo.title }}</span> -
+          <span class="at-song-artist">{{ baseInfo.artist }}</span>
+          <span class="at-song-title">{{ baseInfo.title }}</span> -
+          <span class="at-song-artist">{{ baseInfo.artist }}</span>
+        </div>
       </div>
       <div class="at-song-position">{{ baseInfo.songPosition }}</div>
     </div>
@@ -115,7 +148,7 @@ const handlePlayPause = () => {
         </select>
       </div>
       <!-- 方向 -->
-      <div class="at-layout" @click="handleChangeLayout">
+      <div class="at-layout" @change="handleChangeLayout">
         <select>
           <option value="horizontal">Horizontal</option>
           <option value="page" selected>Vertical</option>
@@ -127,11 +160,16 @@ const handlePlayPause = () => {
 
 <style>
 .at-controls {
-  flex: 0 0 auto;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
+  max-height: 48px;
   justify-content: space-between;
   background: #436d9d;
-  color: #fff;
+  color: #fff; 
+  z-index: 1003;
 }
 .at-controls > div {
   display: flex;
@@ -145,8 +183,8 @@ const handlePlayPause = () => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  padding: 4px;
-  margin: 0 3px;
+  padding: 4px 0;
+  margin: 0;
 }
 .at-controls .btn {
   color: #fff;
@@ -183,5 +221,15 @@ const handlePlayPause = () => {
 
 .at-song-title {
   font-weight: bold;
+}
+
+.at-song-position, .at-song-info {
+  white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+  .at-song-position, .at-song-info {
+    display: none !important;
+  }
 }
 </style>
