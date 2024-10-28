@@ -3,7 +3,7 @@ import globalState from "@/store/globalState";
 import { useAPI } from "@/composables/useAPI";
 import { ref } from "vue";
 
-const { trackOptionList, activeTrackSet } = useAPI();
+const { baseInfo, trackOptionList, activeTrackSet } = useAPI();
 
 const isExpand = ref(false);
 
@@ -13,10 +13,24 @@ const handleChangeTrack = (e: any, id: number) => {
     isExpand.value = true
     return
   }
-  if (activeTrackSet.value.has(id)) return;
-  globalState.api!.renderTracks(
-    globalState.trackList!.filter((track) => track.index == id)
-  );
+  if (baseInfo.value.multiTrack) {
+    if (activeTrackSet.value.has(id)) {
+      if (activeTrackSet.value.size === 1) return
+      else {
+        activeTrackSet.value.delete(id)
+      }
+    } else {
+      activeTrackSet.value.add(id)
+    }
+    globalState.api!.renderTracks(
+      globalState.trackList!.filter((track) => activeTrackSet.value.has(track.index))
+    );
+  } else {
+    if (activeTrackSet.value.has(id)) return;
+    globalState.api!.renderTracks(
+      globalState.trackList!.filter((track) => track.index == id)
+    );
+  }
 };
 
 const handleChangeVolume = (id: number, volume: number) => {

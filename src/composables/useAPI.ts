@@ -29,6 +29,8 @@ interface BaseInfo {
   state: AlphaTab.synth.PlayerState
   /** 播放进度文案 */
   songPosition: string
+  /** 是否允许选择复声轨 */
+  multiTrack: boolean
 }
 
 const DefaultBaseInfo = {
@@ -39,6 +41,7 @@ const DefaultBaseInfo = {
   isLooping: false,
   state: AlphaTab.synth.PlayerState.Paused,
   songPosition: '00:00 / 00:00',
+  multiTrack: false,
 }
 
 /** 创建API */

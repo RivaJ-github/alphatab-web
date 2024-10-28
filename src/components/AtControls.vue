@@ -22,9 +22,13 @@ const handleSwitchLoop = () => {
   globalState.api!.isLooping = baseInfo.value.isLooping = newIsLooping;
 };
 
-const handlePrint = () => {
-  globalState.api!.print();
-};
+// const handlePrint = () => {
+//   globalState.api!.print();
+// };
+
+const handleChangeSpeed = (e: any) => {
+  globalState.api!.playbackSpeed = e.target!.value
+}
 
 const handleChangeZoom = (e: any) => {
   globalState.api!.settings.display.scale = parseInt(e.target!.value) / 100;
@@ -91,17 +95,33 @@ const handleOpenFile = () => {
           }`"
         ></i>
       </a>
+      <!-- 缩放 -->
+      <div class="at-zoom">
+        <select @change="handleChangeSpeed">
+          <option value="0.5">0.5x</option>
+          <option value="0.6">0.6x</option>
+          <option value="0.7">0.7x</option>
+          <option value="0.8">0.8x</option>
+          <option value="0.9">0.9x</option>
+          <option value="1" selected>1x</option>
+          <option value="1.1">1.1x</option>
+          <option value="1.2">1.2x</option>
+          <option value="1.3">1.3x</option>
+          <option value="1.4">1.4x</option>
+          <option value="1.5">1.5x</option>
+        </select>
+      </div>
       <span class="at-player-progress" v-if="!isPlayerReady"
         >{{ fontLoadPercent }}%</span
       >
-      <div class="at-song-info">
+      <!-- <div class="at-song-info">
         <div class="at-song-info-wrap">
           <span class="at-song-title">{{ baseInfo.title }}</span> -
           <span class="at-song-artist">{{ baseInfo.artist }}</span>
           <span class="at-song-title">{{ baseInfo.title }}</span> -
           <span class="at-song-artist">{{ baseInfo.artist }}</span>
         </div>
-      </div>
+      </div> -->
       <div class="at-song-position">{{ baseInfo.songPosition }}</div>
     </div>
     <div class="at-controls-right">
@@ -129,10 +149,11 @@ const handleOpenFile = () => {
       >
         <i class="fas fa-retweet"></i>
       </a>
+      <a class="btn" :class="{ active: baseInfo.multiTrack }" style="width: 3rem" @click="() => baseInfo.multiTrack = !baseInfo.multiTrack">复声轨</a>
       <!-- 打印 -->
-      <a class="btn at-print" @click="handlePrint">
+      <!-- <a class="btn at-print" @click="handlePrint">
         <i class="fas fa-print"></i>
-      </a>
+      </a> -->
       <!-- 缩放 -->
       <div class="at-zoom">
         <select @change="handleChangeZoom">
@@ -184,8 +205,15 @@ const handleOpenFile = () => {
   justify-content: center;
   cursor: pointer;
   padding: 4px 0;
-  margin: 0;
+  margin: 0 2px;
 }
+
+@media (max-width: 576px) {
+  .at-controls > div > * {
+    margin: 0;
+  }
+}
+
 .at-controls .btn {
   color: #fff;
   border-radius: 0;
@@ -225,11 +253,5 @@ const handleOpenFile = () => {
 
 .at-song-position, .at-song-info {
   white-space: nowrap;
-}
-
-@media (max-width: 576px) {
-  .at-song-position, .at-song-info {
-    display: none !important;
-  }
 }
 </style>
