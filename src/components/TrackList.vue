@@ -182,7 +182,7 @@ const closeTrack = () => isExpand.value = false
 }
 
 input[type="range"] {
-  -webkit-appearance: none;
+  appearance: none;
   background: #d3d3d3;
   height: 5px;
   opacity: 0.7;

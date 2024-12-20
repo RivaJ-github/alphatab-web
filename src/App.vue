@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
+import { Analytics } from "@vercel/analytics/vue"
 import { useAPI } from "./composables/useAPI";
 import TrackList from "./components/TrackList.vue";
 import AtOverlay from "./components/AtOverlay.vue";
@@ -32,6 +33,8 @@ onMounted(() => {
 </script>
 
 <template>
+  <Analytics />
+  
   <AtOverlay />
 
   <div class="at-content">
