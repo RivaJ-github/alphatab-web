@@ -68,7 +68,7 @@ const handleOpenFile = () => {
     if (t.files?.length !== 1) return 
     const fr = new FileReader()
     fr.onload = e => {
-      globalState.api!.load(e.target?.result, [0]) && saveHistoryFile(t.files[0].name, e.target?.result)
+      globalState.api!.load(e.target?.result, [0]) && saveHistoryFile(t.files![0]!.name, e.target?.result as ArrayBuffer)
     }
     fr.readAsArrayBuffer(t.files[0])
   },

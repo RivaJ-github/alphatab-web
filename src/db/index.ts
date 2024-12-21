@@ -1,9 +1,10 @@
 const STORE_NAME = "file-history";
+
 const indexedDB =
   window.indexedDB ||
-  window.webkitIndexedDB ||
-  window.mozIndexedDB ||
-  window.msIndexedDB;
+  (window as any).webkitIndexedDB ||
+  (window as any).mozIndexedDB ||
+  (window as any).msIndexedDB;
 
 let db: any;
 
@@ -24,7 +25,7 @@ export function initDB() {
       }
     };
 
-    request.onerror = (error) => {
+    request.onerror = () => {
       console.log("数据库打开失败");
       reject();
     };
