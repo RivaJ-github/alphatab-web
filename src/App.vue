@@ -6,6 +6,7 @@ import TrackList from "./components/TrackList.vue";
 import AtOverlay from "./components/AtOverlay.vue";
 import AtControls from "./components/AtControls.vue";
 import globalState from "./store/globalState";
+import { getLastFile, initDB } from "./db";
 
 const { init } = useAPI()
 
@@ -29,6 +30,7 @@ onMounted(() => {
   if (!api) {
     throw Error('初始化失败！')
   }
+  initDB().then(getLastFile).then(buffer => api.load(buffer))
 });
 </script>
 

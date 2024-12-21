@@ -2,6 +2,7 @@
 import * as AlphaTab from "@coderline/alphatab";
 import { useAPI } from "@/composables/useAPI";
 import globalState from "@/store/globalState";
+import { saveHistoryFile } from "@/db";
 
 const { baseInfo, isPlayerReady, fontLoadPercent } = useAPI();
 
@@ -67,7 +68,7 @@ const handleOpenFile = () => {
     if (t.files?.length !== 1) return 
     const fr = new FileReader()
     fr.onload = e => {
-      globalState.api!.load(e.target?.result, [0])
+      globalState.api!.load(e.target?.result, [0]) && saveHistoryFile(t.files[0].name, e.target?.result)
     }
     fr.readAsArrayBuffer(t.files[0])
   },
